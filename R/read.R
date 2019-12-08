@@ -28,8 +28,15 @@ cbs_shape_read <- function(year, level="gem", path=NULL, wgs84=FALSE, verbose=TR
 
   # shapefile path
   shp_path <- Sys.glob(file.path(path, sprintf("*%s*%s*.shp", level, year)))
+
+  # if missing path try to find it using fuzzy matching  
   if (length(shp_path) == 0){
-    stop(paste("data not found on location:", path))
+    all_files <- grep(year, list.files(path, pattern = '.shp$'), value = T)
+    good_file <- agrep(level, all_files, max.distance = 2, value = T)
+    shp_path <- paste(path, good_file, sep = '/')
+    if (length(shp_path) == 0){
+        stop(paste("data not found on location:", path))
+    }      
   }
 
   # load shape
